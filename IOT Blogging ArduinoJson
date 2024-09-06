@@ -1,0 +1,62 @@
+///Code for Arduino UNO(ArduinoJson)
+#include <ArduinoJson.h>
+
+// Use Serial for communication with ESP32
+void setup() {
+  Serial.begin(115200);  // Start Serial communication with the ESP32
+}
+
+void loop() {
+  // Example data that you might send to the ESP32
+  int sensorValue = analogRead(A0);
+
+  // Create a JSON document
+  StaticJsonDocument<200> jsonDoc;
+  jsonDoc["sensor_value"] = sensorValue;
+
+  // Serialize JSON to string
+  String jsonOutput;
+  serializeJson(jsonDoc, jsonOutput);
+
+  // Send JSON data over Serial to ESP32
+  Serial.println(jsonOutput);
+
+  delay(1000);  // Wait for 1 second before sending the next data
+}
+
+
+///Code for ES32(ArduinoJson)
+
+
+
+#include <ArduinoJson.h>
+
+void setup() {
+  Serial.begin(115200);  // Start Serial communication with Arduino Uno
+}
+
+void loop() {
+  // Check if data is available
+  if (Serial.available()) {
+    String jsonInput = Serial.readStringUntil('\n');  // Read the JSON data sent from Arduino Uno
+
+    // Create a JSON document
+    StaticJsonDocument<200> jsonDoc;
+
+    // Parse the JSON inputar
+    DeserializationError error = deserializeJson(jsonDoc, jsonInput);
+
+    // Check for errors in deserialization
+    if (error) {
+      Serial.println("Failed to parse JSON");
+      return;
+    }
+
+    // Extract the sensor value from the JSON document
+    int sensorValue = jsonDoc["sensor_value"];
+    Serial.print("Received sensor value: ");
+    Serial.println(sensorValue);
+  }
+}
+
+
